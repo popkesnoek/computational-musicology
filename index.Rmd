@@ -20,6 +20,8 @@ library(cluster)
 
 Column {data-width=650}
 -----------------------------------------------------------------------
+### Welcome
+This dashboard will be a demonstration of correlation between various musical terms, were we will look for correlations between music in various ways. By using the music metrics of the music corpus of the computational musicology class of 2025 we will try to get a better understanding of music and sound. 
 
 ### Data applied on test visualisation
 
@@ -88,6 +90,10 @@ ggplot(cm2025, aes(x = tempo, y = danceability)) +
   scale_color_gradient(low = "purple", high = "orange")
 ggplotly()
 ```
+### Toughts 
+
+So far we can see there is a correlation between tempo and danceablility. 
+
 
 Column {data-width=350}
 -----------------------------------------------------------------------
