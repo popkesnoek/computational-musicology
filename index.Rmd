@@ -23,6 +23,8 @@ Column {data-width=650}
 ### Welcome
 This dashboard will be a demonstration of correlation between various musical terms, were we will look for correlations between music in various ways. By using the music metrics of the music corpus of the computational musicology class of 2025 we will try to get a better understanding of music and sound. 
 
+I've chosen my tracks because one of them is made by artist I work with and am a huge fan of and the other is made by a friend who also produces music. The tracks are quiet different, which I like because I hope I can compare them in interesting ways. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an iteresting mix of music. 
+
 ### Data applied on test visualisation
 
 
@@ -92,7 +94,7 @@ ggplotly()
 ```
 ### Toughts 
 
-So far we can see there is a correlation between tempo and danceablility. 
+So far we can see there is a correlation between tempo and danceablility. This is still a work in progress page. 
 
 
 Column {data-width=350}
