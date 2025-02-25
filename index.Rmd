@@ -12,10 +12,6 @@ output:
 library(flexdashboard)
 library(tidyverse)
 library(plotly)
-library(readr)
-library(ggplot2)
-library(reshape2)
-library(cluster)
 ```
 
 Column {data-width=650}
@@ -92,23 +88,13 @@ ggplot(cm2025, aes(x = tempo, y = danceability)) +
   scale_color_gradient(low = "purple", high = "orange")
 ggplotly()
 ```
-### Toughts 
 
-So far we can see there is a correlation between tempo and danceablility. This is still a work in progress page. 
 
 
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### Toughts 
 
-```{r}
-
-```
-
-### Chart C
-
-```{r}
-
-```
+So far we can see there is a correlation between tempo and danceablility. This is still a work in progress page. 
 
