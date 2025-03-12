@@ -17,16 +17,44 @@ library(rjson)
 ```
 
 ### Welcome
+
 This dashboard will be a demonstration of correlation between various musical terms, were we will look for correlations between music in various ways. By using the music metrics of the music corpus of the computational musicology class of 2025 we will try to get a better understanding of music and sound. 
 
 I've chosen my tracks because one of them is made by artist I work with and am a huge fan of and the other is made by a friend who also produces music. The tracks are quiet different, which I like because I hope I can compare them in interesting ways. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
 
+### spectral & energy novelty
+
+```{r, energy_novelty, cache=TRUE}
+  data1 <-compmus_energy_novelty("features/popke-s-1.json") 
+  fig1 <- ggplot(data1, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Energy Novelty")
+
+
+  data2 <- compmus_energy_novelty("features/popke-s-2.json")
+  fig2 <- ggplot(data2, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Time (s)", y = "Energy Novelty")
+  
+  fig <- subplot(fig1, fig2) %>%
+  layout(
+    title = "energy novelty",
+    xaxis = list(title = "Time"),
+    yaxis = list(title = "Energy Novelty")
+  )
+  fig
+```
+
+```{r, sepctral_novelty, cache=TRUE}
+
+```
 
 
 ### keychrams and Chordchrams song 1
 
-
-```{r}
+```{r, cache=TRUE}
 #      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
 major_chord <-
   c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
@@ -164,9 +192,10 @@ key_templates <-
   
 ```
 
+
 ### Chromagrams song 1 & 2
 
-```{r}
+```{r, cache=TRUE}
   data1 <- compmus_chroma("features/popke-s-1.json", norm = "identity")      
   fig1 <- ggplot(data1, aes(x = time, y = pc, fill = value)) + 
   geom_raster() +
@@ -204,10 +233,9 @@ key_templates <-
 ```
 
 
-
 ### cepstograms song 1 and 2 
 
-```{r}
+```{r, cache=TRUE}
   data1 <- compmus_mfccs("features/popke-s-1.json", norm = "identity")
   fig1 <- ggplot(data1, aes(x = time, y = mfcc, fill = value)) + 
   geom_raster() +
@@ -234,10 +262,10 @@ fig <- subplot(fig1, fig2)
 fig
 ```
 
+
 ### Data applied on test visualisation
 
-
-```{r}
+```{r, cache=TRUE}
 aisc2024 <- read_csv("compmus2025.csv")
 aisc2024 |>                   # Start with the data
   ggplot(                     # Set up the plot.
@@ -282,8 +310,11 @@ aisc2024 |>                   # Start with the data
   )
 ggplotly()
 ```
+
+
 ### histogram tempo
-```{r}
+
+```{r, cache=TRUE}
 
 cm2025 <- read_csv("compmus2025.csv")
   ggplot(cm2025, aes(x= tempo)) + geom_histogram()
@@ -292,7 +323,8 @@ cm2025 <- read_csv("compmus2025.csv")
 
 
 ### correlation tempo and danceability
-```{r}
+
+```{r, cache=TRUE}
 cm2025 <- read_csv("compmus2025.csv")
 ggplot(cm2025, aes(x = tempo, y = danceability)) +
   geom_point(aes(color = engagingness), alpha = 0.7) +
