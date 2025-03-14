@@ -398,6 +398,11 @@ cm2025 <- read_csv("compmus2025.csv")
   ggplotly()
 ```
 
+***
+
+This is a histogram that gives insight to the tempo variation of our class corpus. The median is at 85 and the mean is around 100. 
+I think the analysis isn't really specific, for both my own songs the tempo was 30 bpm lower than i saw in the file. I think the data is not that reliable. 
+
 
 ### correlation tempo and danceability
 
