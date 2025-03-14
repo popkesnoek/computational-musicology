@@ -26,35 +26,109 @@ I've chosen my tracks because one of them is made by artist I work with and am a
 
 ```{r, energy_novelty, cache=TRUE}
   data1 <-compmus_energy_novelty("features/popke-s-1.json") 
-  fig1 <- ggplot(data1, aes(t, novelty)) +
+  fig1 <- (ggplot(data1, aes(t, novelty)) +
   geom_line() +
   theme_minimal() +
-  labs(x = "Time (s)", y = "Energy Novelty")
+  labs(title = "Energy Novelty song1", x = "Time (s)", y = "Energy Novelty"))
 
 
   data2 <- compmus_energy_novelty("features/popke-s-2.json")
-  fig2 <- ggplot(data2, aes(t, novelty)) +
+  fig2 <- (ggplot(data2, aes(t, novelty)) +
   geom_line() +
   theme_minimal() +
-  labs(x = "Time (s)", y = "Energy Novelty")
+  labs(title = "Energy Novelty song 2",x = "Time (s)", y = "Energy Novelty"))
+
+  data3 <- compmus_spectral_novelty("features/popke-s-1.json")
+  fig3 <- (ggplot(data3, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Spectral Novelty song 1", x = "Time (s)", y = "Spectral Novelty")) 
   
-  fig <- subplot(fig1, fig2) %>%
+  data4 <- compmus_spectral_novelty("features/popke-s-2.json")
+  fig4 <- (ggplot(data4, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Spectral Novelty song 2", x = "Time (s)", y = "Spectral Novelty"))
+  
+  fig1_plotly <- ggplotly(fig1)
+  fig2_plotly <- ggplotly(fig2)
+  fig3_plotly <- ggplotly(fig3)
+  fig4_plotly <- ggplotly(fig4)
+  
+  subplot(fig1_plotly, fig3_plotly, fig2_plotly, fig4_plotly, nrows=4) %>%
   layout(
-    title = "energy novelty",
+    title = "Spectral novelty song 1 & 2",
     xaxis = list(title = "Time"),
-    yaxis = list(title = "Energy Novelty")
+    yaxis = list(title = "Spectral Novelty")
+  )
+```
+
+
+### Tempograms
+
+```{r, tempograms, cache=TRUE}
+  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = FALSE)
+  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = FALSE)
+  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+  
+  fig <- subplot(fig1, fig2, nrows=2)%>%
+  layout(
+    title = "tempograms",
+    xaxis = list(title = "Time"),
+    yaxis = list(title = "Temo (BPM)")
   )
   fig
 ```
 
-```{r, sepctral_novelty, cache=TRUE}
 
+***
+Here we see the tempo gram plots for both songs. I first started out with a window size of 32 and hop size of 4. Where-after i got only really tight lines in my tempo grams. I adjusted the window size first to 8 and kept the hop size the same. The fluctuations in the tempo gram became already clearer. With lowering the window size you can clearly see more fluctuations and details in the tempo gram. We can see a clear tempo at ±135 BPM, which is also the tempo of the song, then we see 3 subharmonics at ±275, ±405, ±524. These are all doublings of the base tempo and therefore picked up in the tempograph. 
+
+
+### cyclic tempograms
+
+```{r, cyclic tempograms, cache=TRUE}
+  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = TRUE)
+  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = TRUE)
+  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+  
+  fig <- subplot(fig1, fig2, nrows=2)%>%
+  layout(
+    title = "tempograms",
+    xaxis = list(title = "Time"),
+    yaxis = list(title = "Tempo (BPM)")
+  )
+  fig
 ```
+
+***
+
+In the cyclic tempo gram, we have a more visible sight of the actual tempo of the songs. Which is arond 137 for both of them. 
 
 
 ### keychrams and Chordchrams song 1
 
-```{r, cache=TRUE}
+```{r, Keycharams & Choardchrams, cache=TRUE}
 #      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
 major_chord <-
   c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
@@ -195,7 +269,7 @@ key_templates <-
 
 ### Chromagrams song 1 & 2
 
-```{r, cache=TRUE}
+```{r, Chromagrams, cache=TRUE}
   data1 <- compmus_chroma("features/popke-s-1.json", norm = "identity")      
   fig1 <- ggplot(data1, aes(x = time, y = pc, fill = value)) + 
   geom_raster() +
@@ -235,7 +309,7 @@ key_templates <-
 
 ### cepstograms song 1 and 2 
 
-```{r, cache=TRUE}
+```{r, Cepstograms, cache=TRUE}
   data1 <- compmus_mfccs("features/popke-s-1.json", norm = "identity")
   fig1 <- ggplot(data1, aes(x = time, y = mfcc, fill = value)) + 
   geom_raster() +
@@ -265,7 +339,7 @@ fig
 
 ### Data applied on test visualisation
 
-```{r, cache=TRUE}
+```{r,datavisualisation, cache=TRUE}
 aisc2024 <- read_csv("compmus2025.csv")
 aisc2024 |>                   # Start with the data
   ggplot(                     # Set up the plot.
@@ -314,7 +388,7 @@ ggplotly()
 
 ### histogram tempo
 
-```{r, cache=TRUE}
+```{r, histogram data, cache=TRUE}
 
 cm2025 <- read_csv("compmus2025.csv")
   ggplot(cm2025, aes(x= tempo)) + geom_histogram()
@@ -324,7 +398,7 @@ cm2025 <- read_csv("compmus2025.csv")
 
 ### correlation tempo and danceability
 
-```{r, cache=TRUE}
+```{r, correlation tempo/danceability, cache=TRUE}
 cm2025 <- read_csv("compmus2025.csv")
 ggplot(cm2025, aes(x = tempo, y = danceability)) +
   geom_point(aes(color = engagingness), alpha = 0.7) +
