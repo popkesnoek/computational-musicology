@@ -169,7 +169,7 @@ I've chosen my tracks because one of them is made by artist I work with and am a
 
 ### analysis of class corpus
 
-```{r, analysis of class corpus, cache=TRUE}
+```{r, analysis of class corpus}
 
 compmus_dist <- dist(cluster_juice, method = "euclidean")
 
@@ -186,7 +186,7 @@ The dendogram is created by measuring the average distance between the tracks in
 
 ### heatmap
 
-```{r, heatmap, cache=TRUE}
+```{r, heatmap}
 heatmaply(
   cluster_juice,
   hclustfun = hclust,
@@ -220,6 +220,11 @@ classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
 
 classification_knn |> get_pr()
 ```
+
+***
+
+With the method of K-nearest neighbours we can take a deeper look into the specifics of the clustering algorithm to see what is going on. 
+
 
 ### random forest
 ```{r}
@@ -272,7 +277,7 @@ compmus2025_filtered |>
 
 ### spectral & energy novelty
 
-```{r, energy_novelty, cache=TRUE}
+```{r, energy_novelty}
   data1 <-compmus_energy_novelty("features/popke-s-1.json") 
   fig1 <- (ggplot(data1, aes(t, novelty)) +
   geom_line() +
@@ -309,7 +314,7 @@ information. more information
 
 ### Tempograms
 
-```{r, tempograms, cache=TRUE}
+```{r, tempograms}
   data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = FALSE)
   fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
   geom_raster() +
@@ -340,7 +345,7 @@ Here we see the tempo gram plots for both songs. I first started out with a wind
 
 ### cyclic tempograms
 
-```{r, cyclic tempograms, cache =TRUE}
+```{r, cyclic tempograms}
   data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = TRUE)
   fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
   geom_raster() +
@@ -467,7 +472,7 @@ Here we see a representation of key grams and chord grams for both songs. They g
 
 ### cepstograms song 1 and 2 
 
-```{r, Cepstograms, cache=TRUE}
+```{r, Cepstograms}
   data1 <- compmus_mfccs("features/popke-s-1.json", norm = "identity")
   fig1 <- ggplot(data1, aes(x = time, y = mfcc, fill = value)) + 
   geom_raster() +
@@ -498,7 +503,7 @@ fig
 
 ### Data applied on test visualisation
 
-```{r,datavisualisation, cache=TRUE}
+```{r,datavisualisation}
 aisc2024 <- read_csv("compmus2025.csv")
 aisc2024 |>                   # Start with the data
   ggplot(                     # Set up the plot.
@@ -547,7 +552,7 @@ ggplotly()
 
 ### histogram tempo
 
-```{r, histogram data, cache=TRUE}
+```{r, histogram data}
 
 cm2025 <- read_csv("compmus2025.csv")
   ggplot(cm2025, aes(x= tempo)) + geom_histogram()
@@ -562,7 +567,7 @@ I think the analysis isn't really specific, for both my own songs the tempo was 
 
 ### correlation tempo and danceability
 
-```{r, correlation tempo/danceability, cache=TRUE}
+```{r, correlation tempo/danceability}
 cm2025 <- read_csv("compmus2025.csv")
 ggplot(cm2025, aes(x = tempo, y = danceability)) +
   geom_point(aes(color = engagingness), alpha = 0.7) +
