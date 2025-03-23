@@ -6,6 +6,7 @@ output:
     orientation: columns
     vertical_layout: fill
     storyboard: true
+    theme: lumen
 ---
 
 ```{r setup, include=FALSE}
@@ -13,125 +14,68 @@ library(flexdashboard)
 library(tidyverse)
 library(plotly)
 source("compmus.R")
+get_conf_mat <- function(fit) {
+  outcome <- .get_tune_outcome_names(fit)
+  fit |> 
+    collect_predictions() |> 
+    conf_mat(truth = outcome, estimate = .pred_class)
+}  
+
+get_pr <- function(fit) {
+  fit |> 
+    conf_mat_resampled() |> 
+    group_by(Prediction) |> mutate(precision = Freq / sum(Freq)) |> 
+    group_by(Truth) |> mutate(recall = Freq / sum(Freq)) |> 
+    ungroup() |> filter(Prediction == Truth) |> 
+    select(class = Prediction, precision, recall)
+}  
+
+
 library(rjson)
-```
+library(tidymodels)
+library(ggdendro)
+library(heatmaply)
+library(patchwork)
 
-### Welcome
+compmus2025 <- read_csv("compmus2025.csv")
 
-This dashboard will be a demonstration of correlation between various musical terms, were we will look for correlations between music in various ways. By using the music metrics of the music corpus of the computational musicology class of 2025 we will try to get a better understanding of music and sound. 
+cluster_juice <-
+  recipe(
+    filename ~
+      arousal +
+      danceability +
+      instrumentalness +
+      tempo +
+      valence,
+    data = compmus2025
+  ) |>
+  step_center(all_predictors()) |>
+  step_scale(all_predictors()) |> 
+  # step_range(all_predictors()) |> 
+  prep(compmus2025) |>
+  juice() |>
+  column_to_rownames("filename")
 
-I've chosen my tracks because one of them is made by artist I work with and am a huge fan of and the other is made by a friend who also produces music. The tracks are quiet different, which I like because I hope I can compare them in interesting ways. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
+compmus2025_filtered <- 
+  compmus2025 |> filter(!is.na(ai)) |> 
+  mutate(ai = factor(if_else(ai, "AI", "Non-AI")))
 
-### spectral & energy novelty
+classification_recipe <-
+  recipe(
+    ai ~
+      arousal +
+      danceability +
+      instrumentalness +
+      tempo +
+      valence,
+    data = compmus2025_filtered
+  ) |>
+  step_center(all_predictors()) |>
+  step_scale(all_predictors())      # Converts to z-scores.
+  # step_range(all_predictors())    # Sets range to [0, 1].
 
-```{r, energy_novelty}
-  data1 <-compmus_energy_novelty("features/popke-s-1.json") 
-  fig1 <- (ggplot(data1, aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Energy Novelty song1", x = "Time (s)", y = "Energy Novelty"))
+compmus_cv <- compmus2025_filtered |> vfold_cv(5)
 
-
-  data2 <- compmus_energy_novelty("features/popke-s-2.json")
-  fig2 <- (ggplot(data2, aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Energy Novelty song 2",x = "Time (s)", y = "Energy Novelty"))
-
-  data3 <- compmus_spectral_novelty("features/popke-s-1.json")
-  fig3 <- (ggplot(data3, aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Spectral Novelty song 1", x = "Time (s)", y = "Spectral Novelty")) 
-  
-  data4 <- compmus_spectral_novelty("features/popke-s-2.json")
-  fig4 <- (ggplot(data4, aes(t, novelty)) +
-  geom_line() +
-  theme_minimal() +
-  labs(title = "Spectral Novelty song 2", x = "Time (s)", y = "Spectral Novelty"))
-  
-  fig1_plotly <- ggplotly(fig1)
-  fig2_plotly <- ggplotly(fig2)
-  fig3_plotly <- ggplotly(fig3)
-  fig4_plotly <- ggplotly(fig4)
-  
-  subplot(fig1_plotly, fig3_plotly, fig2_plotly, fig4_plotly, nrows=4) %>%
-  layout(
-    title = "Spectral novelty song 1 & 2",
-    xaxis = list(title = "Time"),
-    yaxis = list(title = "Spectral Novelty")
-  )
-```
-
-***
-
-information. more information
-
-### Tempograms
-
-```{r, tempograms}
-  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = FALSE)
-  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-
-  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = FALSE)
-  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-  
-  fig <- subplot(fig1, fig2, nrows=2)%>%
-  layout(
-    title = "tempograms",
-    xaxis = list(title = "Time"),
-    yaxis = list(title = "Temo (BPM)")
-  )
-  fig
-```
-
-
-***
-Here we see the tempo gram plots for both songs. I first started out with a window size of 32 and hop size of 4. Where-after i got only really tight lines in my tempo grams. I adjusted the window size first to 8 and kept the hop size the same. The fluctuations in the tempo gram became already clearer. With lowering the window size you can clearly see more fluctuations and details in the tempo gram. We can see a clear tempo at ±135 BPM, which is also the tempo of the song, then we see 3 subharmonics at ±275, ±405, ±524. These are all doublings of the base tempo and therefore picked up in the tempograph. 
-
-
-### cyclic tempograms
-
-```{r, cyclic tempograms}
-  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = TRUE)
-  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-
-  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = TRUE)
-  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
-  
-  fig <- subplot(fig1, fig2, nrows=2)%>%
-  layout(
-    title = "tempograms",
-    xaxis = list(title = "Time"),
-    yaxis = list(title = "Tempo (BPM)")
-  )
-  fig
-```
-
-***
-
-In the cyclic tempo gram, we have a more visible sight of the actual tempo of the songs. Which is arond 137 for both of them. 
-
-
-### keychrams and Chordchrams song 1
-
-```{r, Keycharams & Choardchrams}
 #      C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B
 major_chord <-
   c(   1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
@@ -214,7 +158,221 @@ key_templates <-
     "D#:min", circshift(minor_key, 3)
   )
 
- 
+
+```
+
+### Welcome
+
+This dashboard will be a demonstration of correlation between various musical terms, were we will look for correlations between music in various ways. By using the music metrics of the music corpus of the computational musicology class of 2025 we will try to get a better understanding of music and sound. 
+
+I've chosen my tracks because one of them is made by artist I work with and am a huge fan of and the other is made by a friend who also produces music. The tracks are quiet different, which I like because I hope I can compare them in interesting ways. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
+
+### analysis of class corpus
+
+```{r, analysis of class corpus, cache=TRUE}
+
+compmus_dist <- dist(cluster_juice, method = "euclidean")
+
+compmus_dist |> 
+  hclust(method = "average") |> # Try single, average, and complete.
+  dendro_data() |>
+  ggdendrogram()
+
+```
+
+***
+
+The dendogram is created by measuring the average distance between the tracks in the corpus. On the left side we can see a few outliers. other than that we can see three big clusters. The biggest one on the right side, and two smaller ones on the more left side. 
+
+### heatmap
+
+```{r, heatmap, cache=TRUE}
+heatmaply(
+  cluster_juice,
+  hclustfun = hclust,
+  hclust_method = "average",  # Change for single, average, or complete linkage.
+  dist_method = "euclidean"
+)
+```
+
+***
+
+In this heatmap we compare "valence", "arousal", "danceability", "instrumentalness", "tempo". On the right side and top we can see the clusters created by comparing all these characteristics. 
+
+### k nearest neighbours
+```{r}
+
+knn_model <-
+  nearest_neighbor(neighbors = 1) |>
+  set_mode("classification") |> 
+  set_engine("kknn")
+classification_knn <- 
+  workflow() |> 
+  add_recipe(classification_recipe) |> 
+  add_model(knn_model) |> 
+  fit_resamples(compmus_cv, control = control_resamples(save_pred = TRUE))
+
+classification_knn |> get_conf_mat()
+
+classification_knn |> get_conf_mat() |> autoplot(type = "mosaic")
+
+classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
+
+classification_knn |> get_pr()
+```
+
+### random forest
+```{r}
+forest_model <-
+  rand_forest() |>
+  set_mode("classification") |> 
+  set_engine("ranger", importance = "impurity")
+indie_forest <- 
+  workflow() |> 
+  add_recipe(classification_recipe) |> 
+  add_model(forest_model) |> 
+  fit_resamples(
+    compmus_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+
+indie_forest |> get_pr()
+
+workflow() |> 
+  add_recipe(classification_recipe) |> 
+  add_model(forest_model) |> 
+  fit(compmus2025_filtered) |> 
+  pluck("fit", "fit", "fit") |>
+  ranger::importance() |> 
+  enframe() |> 
+  mutate(name = fct_reorder(name, value)) |> 
+  ggplot(aes(name, value)) + 
+  geom_col() + 
+  coord_flip() +
+  theme_minimal() +
+  labs(x = NULL, y = "Importance")
+```
+
+### AI or no AI
+
+```{r}
+
+compmus_cv <- compmus2025_filtered |> vfold_cv(5)
+compmus2025_filtered |>
+  ggplot(aes(x = valence, y = arousal, colour = ai, size = tempo)) +
+  geom_point(alpha = 0.8) +
+  scale_color_viridis_d() +
+  labs(
+    x = "Valence",
+    y = "Arousal",
+    size = "Tempo",
+    colour = "AI"
+  )
+```
+
+### spectral & energy novelty
+
+```{r, energy_novelty, cache=TRUE}
+  data1 <-compmus_energy_novelty("features/popke-s-1.json") 
+  fig1 <- (ggplot(data1, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Energy Novelty song1", x = "Time (s)", y = "Energy Novelty"))
+
+
+  data2 <- compmus_energy_novelty("features/popke-s-2.json")
+  fig2 <- (ggplot(data2, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Energy Novelty song 2",x = "Time (s)", y = "Energy Novelty"))
+
+  data3 <- compmus_spectral_novelty("features/popke-s-1.json")
+  fig3 <- (ggplot(data3, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Spectral Novelty song 1", x = "Time (s)", y = "Spectral Novelty")) 
+  
+  data4 <- compmus_spectral_novelty("features/popke-s-2.json")
+  fig4 <- (ggplot(data4, aes(t, novelty)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Spectral Novelty song 2", x = "Time (s)", y = "Spectral Novelty"))
+
+  
+  fig1 / fig2 / fig3 / fig4
+
+```
+
+***
+
+information. more information
+
+### Tempograms
+
+```{r, tempograms, cache=TRUE}
+  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = FALSE)
+  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = FALSE)
+  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+  
+  fig <- subplot(fig1, fig2, nrows=2)%>%
+  layout(
+    title = "tempograms",
+    xaxis = list(title = "Time"),
+    yaxis = list(title = "Temo (BPM)")
+  )
+  fig
+```
+
+
+***
+Here we see the tempo gram plots for both songs. I first started out with a window size of 32 and hop size of 4. Where-after i got only really tight lines in my tempo grams. I adjusted the window size first to 8 and kept the hop size the same. The fluctuations in the tempo gram became already clearer. With lowering the window size you can clearly see more fluctuations and details in the tempo gram. We can see a clear tempo at ±135 BPM, which is also the tempo of the song, then we see 3 subharmonics at ±275, ±405, ±524. These are all doublings of the base tempo and therefore picked up in the tempograph. 
+
+
+### cyclic tempograms
+
+```{r, cyclic tempograms, cache =TRUE}
+  data1 <- compmus_tempogram("features/popke-s-1.json", window_size = 4, hop_size = 2, cyclic = TRUE)
+  fig1 <- ggplot(data1, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+  data2 <- compmus_tempogram("features/popke-s-2.json", window_size = 4, hop_size = 2, cyclic = TRUE)
+  fig2 <- ggplot(data2, aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+  
+  fig <- subplot(fig1, fig2, nrows=2)%>%
+  layout(
+    title = "tempograms",
+    xaxis = list(title = "Time"),
+    yaxis = list(title = "Tempo (BPM)")
+  )
+  fig
+```
+
+***
+
+In the cyclic tempo gram, we have a more visible sight of the actual tempo of the songs. Which is arond 137 for both of them. 
+
+
+### keychrams and Chordchrams 
+
+```{r, Keycharams & Choardchrams}
+
   data1 <- compmus_chroma("features/popke-s-1.json", norm = "identity")%>%
   compmus_match_pitch_templates(
     key_templates,         
@@ -223,9 +381,8 @@ key_templates <-
   
   fig1 <- ggplot(data1, aes(x = time, y = name, fill = d)) + 
   geom_raster() +
-  scale_fill_viridis_c(guide = "none") +               
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_classic() 
+  scale_fill_viridis_c(guide = "none") +
+  labs(title = "keygram song 1", y = "Keys", fill = NULL) + theme_classic() + theme(plot.title = element_text(size=8), axis.title.y = element_text(size=8))
 
   data2 <- compmus_chroma("features/popke-s-1.json", norm = "identity")%>%
     compmus_match_pitch_templates(
@@ -233,12 +390,12 @@ key_templates <-
     norm = "identity",       
     distance = "cosine"   
   ) 
+  
   fig2 <- ggplot(data2, aes(x = time, y = name, fill = d)) + 
   geom_raster() +
-  scale_fill_viridis_c(guide = "none") +               
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_classic()  
-  
+  scale_fill_viridis_c(guide = "none") +           
+  labs(title = "chordgram song 1", y = "Chords", fill = NULL) + theme_classic() + theme(plot.title = element_text(size=8),  axis.title.y = element_text(size=8))
+
     data3 <- compmus_chroma("features/popke-s-2.json", norm = "identity")%>%
   compmus_match_pitch_templates(
     key_templates,         
@@ -248,8 +405,7 @@ key_templates <-
   fig3 <- ggplot(data3, aes(x = time, y = name, fill = d)) + 
   geom_raster() +
   scale_fill_viridis_c(guide = "none") +               
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_classic() 
+  labs(title = "keygram song 2", y = "Keys", fill = NULL) + theme_classic() + theme(plot.title = element_text(size=8), axis.title.y = element_text(size=8))
 
   data4 <- compmus_chroma("features/popke-s-2.json", norm = "identity")%>%
     compmus_match_pitch_templates(
@@ -260,15 +416,14 @@ key_templates <-
   fig4 <- ggplot(data4, aes(x = time, y = name, fill = d)) + 
   geom_raster() +
   scale_fill_viridis_c(guide = "none") +               
-  labs(x = "Time (s)", y = "Template", fill = NULL) +
-  theme_classic()  
+  labs(title = "chordgram song 2", x = "Time (s)", y = "Chords", fill = NULL) + theme_classic() + theme(plot.title = element_text(size=8), axis.title.x = element_text(size=8), axis.title.y = element_text(size=8))
   
-  fig <- subplot(fig1, fig2, fig3, fig4, nrows = 2) %>%
-    layout(title = "Keygrams and Chord grams for song 1 & 2")
-  fig
+fig1 / fig2 / fig3 / fig4 
   
 ```
 
+***
+Here we see a representation of key grams and chord grams for both songs. They give us a view in the melody played troughout the songs. 
 
 ### Chromagrams song 1 & 2
 
@@ -340,9 +495,10 @@ fig
 ```
 
 
+
 ### Data applied on test visualisation
 
-```{r,datavisualisation}
+```{r,datavisualisation, cache=TRUE}
 aisc2024 <- read_csv("compmus2025.csv")
 aisc2024 |>                   # Start with the data
   ggplot(                     # Set up the plot.
@@ -391,7 +547,7 @@ ggplotly()
 
 ### histogram tempo
 
-```{r, histogram data}
+```{r, histogram data, cache=TRUE}
 
 cm2025 <- read_csv("compmus2025.csv")
   ggplot(cm2025, aes(x= tempo)) + geom_histogram()
@@ -406,7 +562,7 @@ I think the analysis isn't really specific, for both my own songs the tempo was 
 
 ### correlation tempo and danceability
 
-```{r, correlation tempo/danceability}
+```{r, correlation tempo/danceability, cache=TRUE}
 cm2025 <- read_csv("compmus2025.csv")
 ggplot(cm2025, aes(x = tempo, y = danceability)) +
   geom_point(aes(color = engagingness), alpha = 0.7) +
