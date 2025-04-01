@@ -162,7 +162,7 @@ key_templates <-
 
 ```
 
-### Welcome
+### AI analysis class of 25
 
 This dashboard will be a demonstration of correlation between multiple musical terms like tempo, timbre, loudness and other features. 
 Comparing and analyzing music gives us a better insight in how songs are constructed and how we can interpret them. 
@@ -173,6 +173,9 @@ Track 1 is called: "echoes in the abyss" composed by Neither nor.
 Track 2 is called: "paper battles" composed by Parabool. 
 Track 1 is a more melodic track with soft lyrics, it gives you more the feeling of flowing trough the track like a river. 
 Track 2 is more hectic, with a faster BPM. The sub tones in the track feel more chaotic, but also uses vocals. A bit darker than song 1. The chords stay closer together. But make use of build ups and releases. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
+
+Our musical corpus is relatively good devided in AI and non-AI tracks. In the next few chapters we will walk trought the music and analyse the corpus. Discussing our findings as we go along. 
+Enjoy!
 
 
 ***
@@ -193,7 +196,7 @@ Track 2 is more hectic, with a faster BPM. The sub tones in the track feel more 
 
 
 
-### analysis of class corpus
+### analysis of class corpus: dendogram
 
 ```{r, analysis of class corpus}
 
@@ -209,8 +212,9 @@ compmus_dist |>
 ***
 
 The dendogram is created by measuring the average distance between the tracks in the corpus. On the left side we can see a few outliers. other than that we can see three big clusters. The biggest one on the right side, and two smaller ones on the more left side. 
+The dendogram gives a good visualisation about the musical similarity in our class corpus. It shows us where the majority of the songs are categorised and which songs are the most farout outliers. 
 
-### heatmap
+### analysis of class corpus: heatmap
 
 ```{r, heatmap}
 heatmaply(
@@ -225,7 +229,7 @@ heatmaply(
 
 In this heatmap we compare "valence", "arousal", "danceability", "instrumentalness", "tempo". On the right side and top we can see the clusters created by comparing all these characteristics. 
 
-### k nearest neighbours
+### analysis of class corpus: k nearest neighbours
 ```{r}
 
 knn_model <-
@@ -240,21 +244,29 @@ classification_knn <-
 
 classification_knn |> get_conf_mat()
 
-classification_knn |> get_conf_mat() |> autoplot(type = "mosaic")
+classification_knn |> get_pr()
 
 classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
 
-classification_knn |> get_pr()
+
+
+
 ```
 
 ***
 
 With the method of K-nearest neighbours we can take a deeper look into the specifics of the clustering algorithm to see what is going on. 
+If we look at the precision and recall scores we can see that these are not that high. 
+
+precision AI tracks: 0.648
+recall AI tracks: 0.714
+precision non-AI tracks: 0.611
+recall non-AI tracks: 0.537
+
+This means the model is better in predicting AI tracks than in non AI tracks, which is logical considering the AI tracks are more similar than the non-AI tracks. And therefore loosing a lot when trying to find non-AI tracks.  
 
 
-
-
-### AI or no AI
+### analysis of class corpus: AI or no AI
 
 ```{r}
 
@@ -270,6 +282,10 @@ compmus2025_filtered |>
     colour = "AI"
   )
 ```
+
+***
+We see here a bubble scatter plot of the whole class corpus where valence is placed on the x-axes and arousal on the y axis. We see that the spread of valence and arousal is quiet similar. The AI songs are more densely distributed in the middle of the graph, but also have a few outliers withe higher arousal and valence scores. This can be because AI songs are more energetic or uplifting. The tempo differences in AI generated songs are fairly similar where the non-AI songs fluctuate a lot. 
+When we compare AI-generated music with human-made music we can see that human-made music still contains a lot mor diversity than the AI tracks show in this graph. 
 
 ### spectral & energy novelty
 
