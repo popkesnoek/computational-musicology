@@ -246,10 +246,10 @@ classification_knn |> get_conf_mat()
 
 classification_knn |> get_pr()
 
-classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
+fig3 <- classification_knn |> get_conf_mat() |> autoplot(type = "heatmap")
 
 
-
+ggplotly(fig3)
 
 ```
 
