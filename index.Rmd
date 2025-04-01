@@ -258,12 +258,9 @@ ggplotly(fig3)
 With the method of K-nearest neighbours we can take a deeper look into the specifics of the clustering algorithm to see what is going on. 
 If we look at the precision and recall scores we can see that these are not that high. 
 
-precision AI tracks: 0.648
-recall AI tracks: 0.714
-precision non-AI tracks: 0.611
-recall non-AI tracks: 0.537
+Everytime the model runs, different scores are found for the K-nearest neighbours. But everytime the precision and recall for Non-AI tracks is especially low
 
-This means the model is better in predicting AI tracks than in non AI tracks, which is logical considering the AI tracks are more similar than the non-AI tracks. And therefore loosing a lot when trying to find non-AI tracks.  
+This means the model is better in predicting AI tracks than in non AI tracks, which is logical considering the AI tracks are more similar than the non-AI tracks. And therefore loosing a lot when trying to find non-AI tracks. 
 
 
 ### analysis of class corpus: AI or no AI
