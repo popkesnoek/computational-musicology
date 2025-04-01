@@ -169,10 +169,29 @@ Comparing and analyzing music gives us a better insight in how songs are constru
 For this course we use a data set that consists of songs that were created for this course with AI, composed or already existing songs. The class corpus is sufficiently well distributed and we therefore can compare AI tracks with non-AI tracks and analyse their characteristics against each other. This course has given us a deeper understanding of the metrics of music and gave us metrics to analyze the songs. Do AI tracks lack timbre and if yes, in what kind of way? and more importantly: "Can we recognize the difference between AI and non-AI tracks?" 
 
 I've chosen my tracks because one of them is made by artist I work with and am a huge fan of and the other is made by a friend who also produces music. Both tracks are electronic music tracks, in the genre Techno. They are quiet similar genre wise, but are different in comparison. 
-Track 1 is called: "echoes in the abyss" composed by neithernor. 
-Track 2 is called: "paperbattles" composed by parabool. 
+Track 1 is called: "echoes in the abyss" composed by Neither nor. 
+Track 2 is called: "paper battles" composed by Parabool. 
 Track 1 is a more melodic track with soft lyrics, it gives you more the feeling of flowing trough the track like a river. 
-Track 2 is more hectic, with a faster BPM. The subtones in the track feel more chaotic, but also uses vocals. A bit darker than song 1. The chords stay closer togheter. But make use of build ups and releases. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
+Track 2 is more hectic, with a faster BPM. The sub tones in the track feel more chaotic, but also uses vocals. A bit darker than song 1. The chords stay closer together. But make use of build ups and releases. I think my tracks match the class corpus, I came across a lot of instrumental music with a lot melodies in it. I think it's an interesting mix of music. 
+
+
+***
+
+#### SONG 1: Neither Nor - Echoes in the Abyss
+<audio controls>
+    <source src="audio/popke-s-1.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+</audio>
+
+---
+
+#### SONG 2: Parabool - Paper Battles 
+<audio controls>
+    <source src="audio/popke-s-2.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+</audio>
+
+
 
 ### analysis of class corpus
 
@@ -449,7 +468,8 @@ Here we see a representation of key grams and chord grams for both songs. They g
 ***
 
 A chromagram is a time versus pitch class matrix, which is often used in Music Information Retrieval (MIR). It shows how much energy there is present for each of the 12 pitch classes. While a spectogram shows all frequencies, a chromagram visualises the frequencies for each octave in a single representation. 
-When looking at the 
+When looking at the left chromagram, we can see that it appears a bit denser with a few more bright patches which suggest the use of louder notes or more harmonic complexity. The right chromagram has a more evenly divided distribution. We can see a lot of energy in the tonal use at the E, F and G chords. 
+This could indicate that song 2 is played in an F major or D minor scale whereas song 1 could be played in A minor or G major. 
 
 
 ### cepstograms song 1 and 2 
