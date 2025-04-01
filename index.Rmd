@@ -306,7 +306,15 @@ compmus2025_filtered |>
 
 ***
 
-information. more information
+Spectral & Energy based novelty graphs are used when we want to find parts in a song or music pieces that show a burst of novel or energetic music. 
+Where the energy novelty shows information about the changes in loudness or transitions in the music. The spectral energy gives us more information about instrumental shifts, harmonic shifts or changes in timbre. 
+If we look at song 1 we see peaks in the energy novelty at around 10, 90 and 150 seconds. When we listen to the track we first hear the intro and after about 10 seconds the base starts playing. At 50 seconds we hear a few soft vocals, which is also explained by the little bump at +50 seconds. After about 90 seconds the female voice comes in play. At around 150 seconds we see a few peaks close together in the graph at this point, the voice sings acapella and goes from a very high pitch to a lower pitch where after the music comes back in. The spectral novelty shows a lot of peaks throughout the song, it's lower when the beat stops and then comes back up again. It gives us more global information about the harmony, while the energy novelty can point to parts in the song where something new is happening. 
+
+For song 2 this happens at around 50 and 140 seconds.At 50 seconds after a break in the music the beat comes back what is shown in the energy novelty. At around 140 seconds the beat stops and dark vocals come in. Because the song uses a more repetitive structure, the spectral novelty graph doesn't show a lot of changes throughout the track. 
+
+We can see energy novelty and spectral novelty can give us a lot of different information about what is happening in a track. When the music makes use of a more complicated structural harmonic section this would be something where a spectral novelty graph could be more efficient than when analysing repetitive structures. 
+
+
 
 ### Tempograms
 
@@ -370,7 +378,7 @@ Here we see the tempo gram plots for both songs. I first started out with a wind
 In the cyclic tempo gram, we have a more visible sight of the actual tempo of the songs. Which is arond 137 for both of them. 
 
 
-### keychrams and Chordchrams 
+### keychrams and Chordchrams
 
 ```{r, Keycharams & Choardchrams}
 
@@ -424,7 +432,11 @@ fig1 / fig2 / fig3 / fig4
 ```
 
 ***
-Here we see a representation of key grams and chord grams for both songs. They give us a view in the melody played troughout the songs. 
+Here we see a representation of key grams and chord grams for both songs. Key grams are used to show the estimated musical key used in a track over time. Chordgrams on the other hand show the estimated chords. 
+
+When we look at the keygrams from both songs, we see that song 1 has more harmonic variety, while song 2 maintains more tonal consistency. Both songs show a big trasnsition as well. 
+When we look at the chordgrams, we see the chords in song 1 show frequent chord changes, which indicates an active harmonic rhythm. Song 2 also shows frequent chord changes but these are more evenly distributed. 
+If we look at the chord and key grams, we can say that song 1 shows more harmonics while song 2 is more rhythmically consistent. Which we can hear in the songs posted on the first page of this flexdashboard. 
 
 ### Chromagrams song 1 & 2
 
@@ -470,6 +482,7 @@ Here we see a representation of key grams and chord grams for both songs. They g
 A chromagram is a time versus pitch class matrix, which is often used in Music Information Retrieval (MIR). It shows how much energy there is present for each of the 12 pitch classes. While a spectogram shows all frequencies, a chromagram visualises the frequencies for each octave in a single representation. 
 When looking at the left chromagram, we can see that it appears a bit denser with a few more bright patches which suggest the use of louder notes or more harmonic complexity. The right chromagram has a more evenly divided distribution. We can see a lot of energy in the tonal use at the E, F and G chords. 
 This could indicate that song 2 is played in an F major or D minor scale whereas song 1 could be played in A minor or G major. 
+The left chromagram shows a few sections where you can see distinctions in harmonic shifts whereas the right chromagram stays more consistent over time. This might suggest a minimal song or a repetive structure, which we can also hear in the music. 
 
 
 ### cepstograms song 1 and 2 
